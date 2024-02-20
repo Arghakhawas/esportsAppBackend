@@ -15,7 +15,7 @@ const ExtractJwt = require('passport-jwt').ExtractJwt;
 
 // CORS setup
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' ? 'http://localhost:5173' : '*',
+  origin: process.env.NODE_ENV === 'production' ? 'https://app.netlify.com/sites/esportsempires' : '*',
   methods: 'GET,PUT,POST,DELETE',
   credentials: true,
 };
@@ -312,7 +312,7 @@ app.post('/api/tournament/submitpayment', passport.authenticate('jwt', { session
 
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
