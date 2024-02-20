@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require ('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const passport = require('passport');
@@ -15,10 +15,11 @@ const ExtractJwt = require('passport-jwt').ExtractJwt;
 
 // CORS setup
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' ? 'https://master--esportsempires.netlify.app/' : '*',
+  origin: process.env.NODE_ENV === 'production' ? 'https://master--esportsempires.netlify.app' : '*',
   methods: 'GET,PUT,POST,DELETE',
   credentials: true,
 };
+
 
 app.use(cors(corsOptions));
 
