@@ -15,7 +15,7 @@ const ExtractJwt = require('passport-jwt').ExtractJwt;
 
 // CORS setup
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' ? 'https://app.netlify.com/sites/esportsempires' : '*',
+  origin: process.env.NODE_ENV === 'production' ? 'https://master--esportsempires.netlify.app/' : '*',
   methods: 'GET,PUT,POST,DELETE',
   credentials: true,
 };
