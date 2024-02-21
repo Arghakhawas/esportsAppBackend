@@ -326,6 +326,10 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('stream', stream);
   });
 
+  socket.on('stopStream', () => {
+    socket.broadcast.emit('stopStream');
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });
