@@ -7,11 +7,14 @@ const passport = require('passport');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
-
+const http = require('http');
+const { Server } = require('socket.io')
 
 const app = express();
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
+const server = http.createServer(app);
+const io = new Server(server);
 
 // CORS setup
 const corsOptions = {
@@ -310,7 +313,23 @@ app.post('/api/tournament/submitpayment', passport.authenticate('jwt', { session
   }
 });
 
+//Recording Screen
+app.get('/api/livestreming', (req, res) => {
+  res.send('<h1>Server is running!</h1>');
+});
 
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  socket.on('stream', (stream) => {
+    // Broadcast the stream to all connected clients except the sender
+    socket.broadcast.emit('stream', stream);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
 
 // Start the server
 const PORT = process.env.PORT || 10000;
