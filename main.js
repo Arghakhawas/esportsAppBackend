@@ -48,6 +48,9 @@ const userSchema = new mongoose.Schema({
   password: String,
   referId: Number,
   number: Number,
+  avatar: {
+    type: String, // Assuming you store the URL of the avatar image
+  },
   profile: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Profile',
@@ -57,6 +60,10 @@ const userSchema = new mongoose.Schema({
     default: 0,
   },
 });
+
+
+
+
 const User = mongoose.model('User', userSchema);
 
 const profileSchema = new mongoose.Schema({
@@ -366,6 +373,24 @@ app.post('/api/change-password', passport.authenticate('jwt', { session: false }
   }
 });
 
+app.post('/api/profile/avatar', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const { avatar } = req.body;
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.avatar = avatar;
+    await user.save();
+
+    res.status(200).json({ message: 'Avatar saved successfully' });
+  } catch (error) {
+    console.error('Error saving avatar:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+});
 // Start the server
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
