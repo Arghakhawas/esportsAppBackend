@@ -344,7 +344,6 @@ io.on('connection', (socket) => {
 
 
 
-// Add this endpoint to your backend code
 app.post('/api/change-password', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { userId, oldPassword, newPassword } = req.body;
 
@@ -391,6 +390,7 @@ app.post('/api/profile/avatar', passport.authenticate('jwt', { session: false })
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 });
+
 // Start the server
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
