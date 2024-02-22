@@ -325,7 +325,7 @@ app.get('/api/livestreming', (req, res) => {
   res.send('<h1>Server is running!</h1>');
 });
 
-io.on('connection', (socket) => {
+io.on('connect', (socket) => {
   console.log('A user connected');
 
   socket.on('stream', (stream) => {
