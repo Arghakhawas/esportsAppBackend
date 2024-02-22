@@ -335,6 +335,37 @@ io.on('connection', (socket) => {
   });
 });
 
+
+
+// Add this endpoint to your backend code
+app.post('/api/change-password', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const { userId, oldPassword, newPassword } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid old password' });
+    }
+
+    // Update the password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedNewPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+});
+
 // Start the server
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
