@@ -337,7 +337,7 @@ io.on('connect', (socket) => {
   socket.on('stopStream', () => {
     socket.broadcast.emit('stopStream');
   });
-
+  
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });
