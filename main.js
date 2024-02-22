@@ -321,12 +321,11 @@ app.post('/api/tournament/submitpayment', passport.authenticate('jwt', { session
 });
 
 //Recording Screen
-app.get('/api/livestreming', (req, res) => {
+app.get('/api/livestreaming', (req, res) => {
   res.send('<h1>Server is running!</h1>');
 });
 
-
-
+// Socket.io setup for live streaming
 io.on('connect', (socket) => {
   console.log('A user connected');
 
