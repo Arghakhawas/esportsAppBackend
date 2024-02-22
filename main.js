@@ -325,11 +325,12 @@ app.get('/api/livestreming', (req, res) => {
   res.send('<h1>Server is running!</h1>');
 });
 
+
+
 io.on('connect', (socket) => {
   console.log('A user connected');
 
   socket.on('stream', (stream) => {
-    // Broadcast the stream to all connected clients except the sender
     socket.broadcast.emit('stream', stream);
   });
 
@@ -341,6 +342,8 @@ io.on('connect', (socket) => {
     console.log('User disconnected');
   });
 });
+
+
 
 
 
