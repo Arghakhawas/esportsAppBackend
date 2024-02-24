@@ -2,8 +2,7 @@ const express = require ('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const passport = require('passport');
-// const GoogleStrategy = require('passport-google-oauth20').Strategy;
-// const FacebookStrategy = require('passport-facebook').Strategy;
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
@@ -98,10 +97,7 @@ const tournamentEntrySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  userUpi: {
-    type: String,
-    required: true,
-  },
+
   paymentStatus: {
     type: String,
     default: 'Pending',
@@ -144,37 +140,7 @@ passport.use(new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
 const generateToken = (user) => {
   return jwt.sign({ userId: user._id }, secretKey, { expiresIn: '24h' });
 };
-// // Google OAuth strategy
-// passport.use(new GoogleStrategy({
-//   clientID: 'your-google-client-id',
-//   clientSecret: 'your-google-client-secret',
-//   callbackURL: 'http://localhost:5173/auth/google/callback',
-// }, async (accessToken, refreshToken, profile, done) => {
-//   try {
-//     let user = await User.findOne({ googleId: profile.id });
 
-//     if (!user) {
-//       // Create a new user if not found
-//       user = new User({ googleId: profile.id, username: profile.displayName, email: profile.emails[0].value });
-//       await user.save();
-//     }
-
-//     return done(null, user);
-//   } catch (error) {
-//     return done(error, null);
-//   }
-// }));
-
-// // Facebook OAuth strategy
-// passport.use(new FacebookStrategy({
-//   clientID: 'your-facebook-client-id',
-//   clientSecret: 'your-facebook-client-secret',
-//   callbackURL: 'http://localhost:5174/auth/facebook/callback',
-// }, async (accessToken, refreshToken, profile, done) => {
-//   // Implement Facebook login logic
-//   // Create or find a user in your database
-//   // Call done(null, user);
-// }));
 
 app.post('/api/signup', async (req, res) => {
   const { username, email, password, referId, number } = req.body;
@@ -238,20 +204,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// // Google authentication route
-// app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-// // Facebook authentication route
-// app.get('/auth/facebook', passport.authenticate('facebook'));
-
-// // Callback routes for Google and Facebook
-// app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
-//   res.redirect('/');
-// });
-
-// app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }), (req, res) => {
-//   res.redirect('/');
-// });
 
 app.get('/api/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
@@ -274,9 +227,9 @@ app.get('/api/profile', passport.authenticate('jwt', { session: false }), async 
 // ... (your existing code)
 
 app.post('/api/tournament/join', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  const { gameId, userName, phoneNumber, userUpi } = req.body;
+  const { gameId, userName, phoneNumber } = req.body;
 
-  if (!gameId || !userName || !phoneNumber || !userUpi) {
+  if (!gameId || !userName || !phoneNumber ) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
@@ -286,7 +239,7 @@ app.post('/api/tournament/join', passport.authenticate('jwt', { session: false }
       gameId,
       userName,
       phoneNumber,
-      userUpi,
+     
       paymentStatus: 'Pending',
     });
 
