@@ -225,24 +225,22 @@ app.get('/api/profile', passport.authenticate('jwt', { session: false }), async 
 
 
 // ... (your existing code)
-
+// Handle form submission
 app.post('/api/tournament/join', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  const { gameId, userName, phoneNumber } = req.body;
-
-  if (!gameId || !userName || !phoneNumber ) {
-    return res.status(400).json({ message: 'All fields are required' });
-  }
+  const { gameId, userName, phoneNumber, formData } = req.body;
 
   try {
+    // Create a new tournament entry document
     const tournamentEntry = new TournamentEntry({
       user: req.user._id,
       gameId,
       userName,
       phoneNumber,
-     
+      formData, // Assuming formData contains additional player/team information
       paymentStatus: 'Pending',
     });
 
+    // Save the tournament entry to the database
     await tournamentEntry.save();
 
     res.status(201).json({ message: 'Form submitted successfully', tournamentEntry });
@@ -251,11 +249,12 @@ app.post('/api/tournament/join', passport.authenticate('jwt', { session: false }
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 });
-
+// Handle payment submission
 app.post('/api/tournament/submitpayment', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const { utrNo } = req.body;
 
+    // Find the corresponding tournament entry document and update its payment status
     const tournamentEntry = await TournamentEntry.findOneAndUpdate(
       { user: req.user._id, paymentStatus: 'Pending' },
       { $set: { utrNo, paymentStatus: 'Paid' } },
