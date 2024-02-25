@@ -277,23 +277,6 @@ app.get('/api/livestreaming', (req, res) => {
   res.send('<h1>Server is running!</h1>');
 });
 
-// Socket.io setup for live streaming
-io.on('connect', (socket) => {
-  console.log('A user connected');
-
-  socket.on('stream', (stream) => {
-    socket.broadcast.emit('stream', stream);
-  });
-
-  socket.on('stopStream', () => {
-    socket.broadcast.emit('stopStream');
-  });
-  
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
-});
-
 
 
 
