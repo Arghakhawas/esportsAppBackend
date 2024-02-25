@@ -236,7 +236,7 @@ app.post('/api/tournament/join', passport.authenticate('jwt', { session: false }
       gameId,
       userName,
       phoneNumber,
-      formData, // Assuming formData contains additional player/team information
+      formData, 
       paymentStatus: 'Pending',
     });
 
