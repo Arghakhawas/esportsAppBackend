@@ -396,7 +396,8 @@ io.on("connect", (socket) => {
 
   socket.on("shareRoomId", (roomId, team1, team2) => {
     // Broadcast the shared room ID to all connected users
-    io.emit("sharedRoomId", { roomId, team1, team2 });
+    socket.broadcast.emit("sharedRoomId", { roomId, team1, team2 });
+
   });
 
   socket.on("disconnect", () => {
