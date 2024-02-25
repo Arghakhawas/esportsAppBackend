@@ -344,9 +344,30 @@ app.post('/api/profile/avatar', passport.authenticate('jwt', { session: false })
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 });
+// Socket.io setup for live streaming
+io.on('connect', (socket) => {
+  console.log('A user connected');
+
+  socket.on('stream', (stream) => {
+    socket.broadcast.emit('stream', stream);
+  });
+
+  socket.on('stopStream', () => {
+    socket.broadcast.emit('stopStream');
+  });
+
+  socket.on('shareRoomId', (roomId, team1, team2) => {
+    // Broadcast the shared room ID to all connected users
+    io.emit('sharedRoomId', { roomId, team1, team2 });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
 
 // Start the server
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
