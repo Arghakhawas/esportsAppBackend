@@ -274,12 +274,15 @@ app.post("/api/login", async (req, res) => {
 
 
 
-// Add this route to your backend code
 app.post("/api/tournament/save-results", async (req, res) => {
   try {
     const { team1, team2, roomId, gameResult } = req.body;
 
- 
+    // Validate inputs
+    if (!team1 || !team2 || !roomId || !gameResult) {
+      return res.status(400).json({ message: "Invalid input data" });
+    }
+
     const updatedEntry = await TournamentEntry.findOneAndUpdate(
       { roomId },
       { $set: { team1, team2, gameResult, resultsSaved: true } },
@@ -495,32 +498,48 @@ app.post(
     }
   }
 );
-
+// Inside the io.on("connect") block
 io.on("connect", (socket) => {
   console.log("A user connected");
 
+  // Handle stream event
   socket.on("stream", (stream) => {
-    socket.broadcast.emit("stream", stream);
+    try {
+      socket.broadcast.emit("stream", stream);
+    } catch (error) {
+      console.error("Error handling stream event:", error);
+    }
   });
 
+  // Handle stopStream event
   socket.on("stopStream", () => {
-    socket.broadcast.emit("stopStream");
+    try {
+      socket.broadcast.emit("stopStream");
+    } catch (error) {
+      console.error("Error handling stopStream event:", error);
+    }
   });
 
+  // Handle shareRoomId event
   socket.on("shareRoomId", (roomId, team1, team2) => {
-    // Broadcast the shared room ID to all connected users
-    socket.broadcast.emit("sharedRoomId", { roomId, team1, team2 });
-
+    try {
+      socket.broadcast.emit("sharedRoomId", { roomId, team1, team2 });
+    } catch (error) {
+      console.error("Error handling shareRoomId event:", error);
+    }
   });
 
+  // Handle disconnect event
   socket.on("disconnect", () => {
     console.log("User disconnected");
   });
 
+  // Handle socket errors
   socket.on("error", (err) => {
     console.error("Socket error:", err);
   });
 });
+
 
 // Start the server
 const PORT = process.env.PORT || 10000;
