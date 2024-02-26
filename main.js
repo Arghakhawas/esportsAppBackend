@@ -57,7 +57,7 @@ const atlasURI =
 mongoose.connect(atlasURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  poolSize: 10,
+  
 });
 const db = mongoose.connection;
 
