@@ -135,6 +135,33 @@ const TournamentEntry = mongoose.model(
   tournamentEntrySchema
 );
 
+const productSchema = new mongoose.Schema({
+  name: String,
+  description: String,
+  price: Number,
+  imageUrl: String,
+});
+
+const Product = mongoose.model("Product", productSchema);
+
+const cartItemSchema = new mongoose.Schema({
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+  },
+  quantity: Number,
+});
+
+const shoppingCartSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  items: [cartItemSchema],
+});
+
+const ShoppingCart = mongoose.model("ShoppingCart", shoppingCartSchema);
+
 // Body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -263,8 +290,55 @@ app.get(
     }
   }
 );
+// cart routes
+app.post("/api/cart/add", passport.authenticate("jwt", { session: false }), async (req, res) => {
+  const { productId, quantity } = req.body;
+  try {
+    // Check if the product exists
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
 
-// ... (your existing code)
+    // Check if the user has a shopping cart
+    let cart = await ShoppingCart.findOne({ user: req.user._id });
+
+    if (!cart) {
+      cart = new ShoppingCart({ user: req.user._id, items: [] });
+    }
+
+    // Check if the product is already in the cart
+    const existingItem = cart.items.find(item => item.productId.equals(productId));
+
+    if (existingItem) {
+      existingItem.quantity += quantity;
+    } else {
+      cart.items.push({ productId, quantity });
+    }
+
+    await cart.save();
+
+    res.status(200).json({ message: "Item added to the cart", cart });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+
+
+
+// ... (Products Shoop)
+app.get("/api/products", async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.status(200).json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
 // Handle form submission
 app.post(
   "/api/tournament/join",
@@ -376,7 +450,7 @@ app.post(
       user.avatar = avatar;
       await user.save();
 
-      res.status(200).json({ message: "Avatar saved successfully" });
+      res.status(200).json({ message: "Avatar saved successfully" , avatar });
     } catch (error) {
       console.error("Error saving avatar:", error);
       res.status(500).json({ message: "Server Error", error: error.message });
