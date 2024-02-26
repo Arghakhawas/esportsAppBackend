@@ -57,6 +57,7 @@ const atlasURI =
 mongoose.connect(atlasURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  poolSize: 10,
 });
 const db = mongoose.connection;
 
@@ -270,6 +271,41 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
+
+
+
+// Add this route to your backend code
+app.post("/api/tournament/save-results", async (req, res) => {
+  try {
+    const { team1, team2, roomId, gameResult } = req.body;
+
+ 
+    const updatedEntry = await TournamentEntry.findOneAndUpdate(
+      { roomId },
+      { $set: { team1, team2, gameResult, resultsSaved: true } },
+      { new: true }
+    );
+
+    if (!updatedEntry) {
+      return res.status(404).json({ message: "Tournament entry not found" });
+    }
+
+    // Emit an event to notify connected clients about the updated results
+    io.emit("tournamentResults", {
+      roomId,
+      team1,
+      team2,
+      gameResult,
+      resultsSaved: true,
+    });
+
+    res.status(200).json({ message: "Results saved successfully" });
+  } catch (error) {
+    console.error("Error saving results:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+});
+
 
 
 app.get(
