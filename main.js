@@ -121,7 +121,7 @@ const tournamentEntrySchema = new mongoose.Schema({
    
   },
   formData: {
-    // Define fields for additional form data
+   
     player1: String,
     player2: String,
     player3: String,
