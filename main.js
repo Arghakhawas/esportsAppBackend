@@ -110,15 +110,15 @@ const tournamentEntrySchema = new mongoose.Schema({
   },
   gameId: {
     type: String,
-    required: true,
+    
   },
   userName: {
     type: String,
-    required: true,
+  
   },
   phoneNumber: {
     type: String,
-    required: true,
+   
   },
   formData: {
     // Define fields for additional form data
@@ -356,7 +356,7 @@ app.post(
         gameId,
         userName,
         phoneNumber,
-        formData, // Assuming formData contains additional player/team information
+        formData,
         paymentStatus: "Pending",
       });
 
@@ -371,7 +371,8 @@ app.post(
       res.status(500).json({ message: "Server Error", error: error.message });
     }
   }
-);  
+);
+
 // Handle payment submission
 app.post(
   "/api/tournament/submitpayment",
