@@ -3,13 +3,11 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const passport = require("passport");
 const cookieParser = require("cookie-parser");
-
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
-
 const app = express();
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
@@ -402,7 +400,7 @@ app.post(
   }
 );
 
-//Recording Screen
+//Recording Sc  reen
 app.get("/api/livestreaming", (req, res) => {
   res.send("<h1>Server is running!</h1>");
 });
