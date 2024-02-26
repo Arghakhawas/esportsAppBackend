@@ -97,14 +97,12 @@ const profileSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  balance: {
-    type: Number,
-    default: 0,
-  },
+
   entryFeePaid: Number,
   paymentStatus: String,
 });
 const Profile = mongoose.model("Profile", profileSchema);
+// Define a Mongoose schema for tournament entry
 const tournamentEntrySchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -122,7 +120,16 @@ const tournamentEntrySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
+  formData: {
+    // Define fields for additional form data
+    player1: String,
+    player2: String,
+    player3: String,
+    player4: String,
+    player5: String,
+    teamName: String,
+    // Add more fields as needed
+  },
   paymentStatus: {
     type: String,
     default: "Pending",
@@ -130,11 +137,8 @@ const tournamentEntrySchema = new mongoose.Schema({
   utrNo: String,
 });
 
-const TournamentEntry = mongoose.model(
-  "TournamentEntry",
-  tournamentEntrySchema
-);
-
+// Create a Mongoose model for tournament entry
+const TournamentEntry = mongoose.model("TournamentEntry", tournamentEntrySchema);
 const productSchema = new mongoose.Schema({
   name: String,
   description: String,
@@ -339,7 +343,6 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
-// Handle form submission
 app.post(
   "/api/tournament/join",
   passport.authenticate("jwt", { session: false }),
@@ -368,7 +371,7 @@ app.post(
       res.status(500).json({ message: "Server Error", error: error.message });
     }
   }
-);
+);  
 // Handle payment submission
 app.post(
   "/api/tournament/submitpayment",
