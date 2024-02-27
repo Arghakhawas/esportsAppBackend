@@ -589,7 +589,6 @@ io.on("connect", (socket) => {
 
 //admin panel Crud
 
-// Authentication Middleware
 const isAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     return next();
@@ -597,6 +596,37 @@ const isAdmin = (req, res, next) => {
     return res.status(403).json({ message: "Access Forbidden" });
   }
 };
+
+app.post("/api/admin/login", async (req, res) => {
+  // Existing code for admin login
+
+  try {
+    // Find admin user by email
+    const adminUser = await User.findOne({ email });
+
+    // Check if user exists and is an admin
+    if (!adminUser || !adminUser.isAdmin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    // Compare passwords
+    const isPasswordValid = await bcrypt.compare(password, adminUser.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    // Generate JWT token
+    const authToken = jwt.sign({ userId: adminUser._id, isAdmin: true }, secretKey, {
+      expiresIn: "24h",
+    });
+
+    // Respond with the token
+    res.status(200).json({ token: authToken });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
 
 // Admin Panel Route
 app.get("/api/admin", passport.authenticate("jwt", { session: false }), isAdmin, async (req, res) => {
