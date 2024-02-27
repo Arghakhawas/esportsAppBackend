@@ -585,8 +585,6 @@ io.on("connect", (socket) => {
 
 
 
-
-
 app.post("/api/admin/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -609,9 +607,7 @@ app.post("/api/admin/login", async (req, res) => {
     const authToken = jwt.sign(
       { userId: adminUser._id, isAdmin: true },
       secretKey,
-      {
-        expiresIn: "24h",
-      }
+      { expiresIn: "24h" }
     );
 
     // Respond with the token
@@ -623,7 +619,6 @@ app.post("/api/admin/login", async (req, res) => {
 });
 
 
-// Admin Panel Route
 const isAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     return next();
