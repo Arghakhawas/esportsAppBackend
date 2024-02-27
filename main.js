@@ -17,7 +17,7 @@ const helmet = require("helmet");
 
 const io = new Server(server, {
   cors: {
-    origin: "https://dev--esportsempires.netlify.app",
+    origin: "https://master--esportsempires.netlify.app",
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: "*",
@@ -28,7 +28,7 @@ const io = new Server(server, {
 
 // CORS setup
 const allowedOrigins = [
-  "https://dev--esportsempires.netlify.app",
+  "https://master--esportsempires.netlify.app",
   "http://localhost:5173",
 ];
 
