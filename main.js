@@ -17,7 +17,7 @@ const helmet = require("helmet");
 
 const io = new Server(server, {
   cors: {
-    origin: "https://dev--esportsempires.netlify.app",
+    origin: "allowedOrigins",
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: "*",
@@ -273,7 +273,6 @@ app.post("/api/login", async (req, res) => {
 });
 
 
-
 app.post("/api/tournament/save-results", async (req, res) => {
   try {
     const { team1, team2, roomId, gameResult } = req.body;
@@ -285,7 +284,7 @@ app.post("/api/tournament/save-results", async (req, res) => {
 
     const updatedEntry = await TournamentEntry.findOneAndUpdate(
       { roomId },
-      { $set: { team1, team2, gameResult, resultsSaved: true } },
+      { $set: { team1, team2, gameResult } },
       { new: true }
     );
 
@@ -299,16 +298,14 @@ app.post("/api/tournament/save-results", async (req, res) => {
       team1,
       team2,
       gameResult,
-      resultsSaved: true,
     });
 
-    res.status(200).json({ message: "Results saved successfully" });
+    res.status(200).json({ message: "Game results saved successfully" });
   } catch (error) {
-    console.error("Error saving results:", error);
+    console.error("Error saving game results:", error);
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 });
-
 
 
 app.get(
