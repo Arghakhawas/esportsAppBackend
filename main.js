@@ -24,8 +24,6 @@ const io = new Server(server, {
   },
 });
 
-
-
 // CORS setup
 const allowedOrigins = [
   "https://master--esportsempires.netlify.app",
@@ -47,17 +45,12 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(helmet());
 
-
-
-
-
 // MongoDB connection
 const atlasURI =
   "mongodb+srv://1234:1234@atlascluster.hflwol3.mongodb.net/test";
 mongoose.connect(atlasURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  
 });
 const db = mongoose.connection;
 
@@ -68,7 +61,6 @@ db.on("error", (error) => {
 db.once("open", () => {
   console.log("Connected to MongoDB Atlas");
 });
-
 
 const userSchema = new mongoose.Schema({
   username: String,
@@ -109,18 +101,14 @@ const tournamentEntrySchema = new mongoose.Schema({
   },
   gameId: {
     type: String,
-    
   },
   userName: {
     type: String,
-  
   },
   phoneNumber: {
     type: String,
-   
   },
   formData: {
-   
     player1: String,
     player2: String,
     player3: String,
@@ -137,7 +125,10 @@ const tournamentEntrySchema = new mongoose.Schema({
 });
 
 // Create a Mongoose model for tournament entry
-const TournamentEntry = mongoose.model("TournamentEntry", tournamentEntrySchema);
+const TournamentEntry = mongoose.model(
+  "TournamentEntry",
+  tournamentEntrySchema
+);
 const productSchema = new mongoose.Schema({
   name: String,
   description: String,
@@ -272,8 +263,6 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-
-
 app.post("/api/tournament/save-results", async (req, res) => {
   try {
     const { team1, team2, roomId, gameResult } = req.body;
@@ -309,8 +298,6 @@ app.post("/api/tournament/save-results", async (req, res) => {
   }
 });
 
-
-
 app.get(
   "/api/profile",
   passport.authenticate("jwt", { session: false }),
@@ -332,42 +319,45 @@ app.get(
   }
 );
 // cart routes
-app.post("/api/cart/add", passport.authenticate("jwt", { session: false }), async (req, res) => {
-  const { productId, quantity } = req.body;
-  try {
-    // Check if the product exists
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+app.post(
+  "/api/cart/add",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const { productId, quantity } = req.body;
+    try {
+      // Check if the product exists
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      // Check if the user has a shopping cart
+      let cart = await ShoppingCart.findOne({ user: req.user._id });
+
+      if (!cart) {
+        cart = new ShoppingCart({ user: req.user._id, items: [] });
+      }
+
+      // Check if the product is already in the cart
+      const existingItem = cart.items.find((item) =>
+        item.productId.equals(productId)
+      );
+
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        cart.items.push({ productId, quantity });
+      }
+
+      await cart.save();
+
+      res.status(200).json({ message: "Item added to the cart", cart });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server Error" });
     }
-
-    // Check if the user has a shopping cart
-    let cart = await ShoppingCart.findOne({ user: req.user._id });
-
-    if (!cart) {
-      cart = new ShoppingCart({ user: req.user._id, items: [] });
-    }
-
-    // Check if the product is already in the cart
-    const existingItem = cart.items.find(item => item.productId.equals(productId));
-
-    if (existingItem) {
-      existingItem.quantity += quantity;
-    } else {
-      cart.items.push({ productId, quantity });
-    }
-
-    await cart.save();
-
-    res.status(200).json({ message: "Item added to the cart", cart });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
   }
-});
-
-
-
+);
 
 // ... (Products Shoop)
 app.get("/api/products", async (req, res) => {
@@ -498,27 +488,48 @@ app.post(
     }
   }
 );
+
+const clients = new Set();
+
 // Inside the io.on("connect") block
-io.on("connect", (socket) => {
-  console.log("A user connected");
+io.on("connection", (socket) => {
+  console.log("A client connected");
+  clients.add(socket);
 
-  // Handle stream event
-  socket.on("stream", (stream) => {
-    try {
-      socket.broadcast.emit("stream", stream);
-    } catch (error) {
-      console.error("Error handling stream event:", error);
-    }
+  // Handle disconnection
+  socket.on("disconnect", () => {
+    console.log("A client disconnected");
+    clients.delete(socket);
   });
 
-  // Handle stopStream event
-  socket.on("stopStream", () => {
-    try {
-      socket.broadcast.emit("stopStream");
-    } catch (error) {
-      console.error("Error handling stopStream event:", error);
-    }
+  // Handle receiving video stream
+  socket.on("videoStream", (dataUrl) => {
+    // Broadcast the received video stream to all connected clients
+    clients.forEach((client) => {
+      if (client !== socket) {
+        client.emit("videoStream", dataUrl);
+        console.log("emitted");
+      }
+    });
   });
+
+  // // Handle stream event
+  // socket.on("stream", (stream) => {
+  //   try {
+  //     socket.broadcast.emit("stream", stream);
+  //   } catch (error) {
+  //     console.error("Error handling stream event:", error);
+  //   }
+  // });
+
+  // // Handle stopStream event
+  // socket.on("stopStream", () => {
+  //   try {
+  //     socket.broadcast.emit("stopStream");
+  //   } catch (error) {
+  //     console.error("Error handling stopStream event:", error);
+  //   }
+  // });
 
   // Handle shareRoomId event
   socket.on("shareRoomId", (roomId, team1, team2) => {
@@ -529,17 +540,11 @@ io.on("connect", (socket) => {
     }
   });
 
-  // Handle disconnect event
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
-  });
-
   // Handle socket errors
   socket.on("error", (err) => {
     console.error("Socket error:", err);
   });
 });
-
 
 // Start the server
 const PORT = process.env.PORT || 10000;
