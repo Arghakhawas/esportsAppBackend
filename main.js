@@ -26,7 +26,7 @@ const io = new Server(server, {
 
 
 
-// CORS setup
+
 const allowedOrigins = [
   "https://dev--esportsempires.netlify.app",
   "http://localhost:5173",
