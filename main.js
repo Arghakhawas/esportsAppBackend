@@ -76,9 +76,7 @@ const userSchema = new mongoose.Schema({
   password: String,
   referId: Number,
   number: Number,
-  avatar: {
-    type: String, // Assuming you store the URL of the avatar image
-  },
+  avatar: String,
   profile: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Profile",
@@ -87,7 +85,12 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  } // Add isAdmin field
 });
+
 
 const User = mongoose.model("User", userSchema);
 
@@ -165,6 +168,48 @@ const shoppingCartSchema = new mongoose.Schema({
 
 const ShoppingCart = mongoose.model("ShoppingCart", shoppingCartSchema);
 
+
+// Define a Mongoose schema for fixtures
+const fixtureSchema = new mongoose.Schema({
+  team1: String,
+  team2: String,
+  date: Date,
+  time: String,
+  venue: String,
+});
+
+// Create a Mongoose model for fixtures
+const Fixture = mongoose.model("Fixture", fixtureSchema);
+
+// Define a Mongoose schema for point tables
+const pointTableSchema = new mongoose.Schema({
+  team: String,
+  points: Number,
+});
+
+// Create a Mongoose model for point tables
+const PointTable = mongoose.model("PointTable", pointTableSchema);
+
+// Define a Mongoose schema for battle grounds
+const battleGroundSchema = new mongoose.Schema({
+  name: String,
+  rules: String,
+  timing: String,
+  prizePool: String,
+});
+
+// Create a Mongoose model for battle grounds
+const BattleGround = mongoose.model("BattleGround", battleGroundSchema);
+
+// Define a Mongoose schema for leagues
+const leagueSchema = new mongoose.Schema({
+  name: String,
+  startDate: Date,
+  endDate: Date,
+});
+
+// Create a Mongoose model for leagues
+const League = mongoose.model("League", leagueSchema);
 // Body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -536,6 +581,242 @@ io.on("connect", (socket) => {
     console.error("Socket error:", err);
   });
 });
+
+
+
+
+
+
+//admin panel Crud
+
+// Authentication Middleware
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.isAdmin) {
+    return next();
+  } else {
+    return res.status(403).json({ message: "Access Forbidden" });
+  }
+};
+
+// Admin Panel Route
+app.get("/api/admin", passport.authenticate("jwt", { session: false }), isAdmin, async (req, res) => {
+  // Your admin panel logic goes here
+  res.status(200).json({ message: "Welcome to the admin panel" });
+});
+// Fixtures CRUD
+app.get("/api/fixtures", async (req, res) => {
+  try {
+    const fixtures = await Fixture.find();
+    res.status(200).json(fixtures);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+app.post("/api/fixtures", async (req, res) => {
+  const { team1, team2, date, time, venue } = req.body;
+
+  try {
+    const newFixture = new Fixture({ team1, team2, date, time, venue });
+    await newFixture.save();
+    res.status(201).json({ message: "Fixture added successfully", fixture: newFixture });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+app.put("/api/fixtures/:id", async (req, res) => {
+  const { team1, team2, date, time, venue } = req.body;
+
+  try {
+    const updatedFixture = await Fixture.findByIdAndUpdate(
+      req.params.id,
+      { team1, team2, date, time, venue },
+      { new: true }
+    );
+    res.status(200).json({ message: "Fixture updated successfully", fixture: updatedFixture });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+app.delete("/api/fixtures/:id", async (req, res) => {
+  try {
+    await Fixture.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Fixture deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Fetch all point tables
+app.get("/api/point-table", async (req, res) => {
+  try {
+    const pointTables = await PointTable.find();
+    res.status(200).json(pointTables);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Add a new point table entry
+app.post("/api/point-table", async (req, res) => {
+  const { team, points } = req.body;
+
+  try {
+    const newPointTableEntry = new PointTable({ team, points });
+    await newPointTableEntry.save();
+    res.status(201).json({ message: "Point table entry added successfully", entry: newPointTableEntry });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Update a point table entry
+app.put("/api/point-table/:id", async (req, res) => {
+  const { team, points } = req.body;
+
+  try {
+    const updatedPointTableEntry = await PointTable.findByIdAndUpdate(
+      req.params.id,
+      { team, points },
+      { new: true }
+    );
+    res.status(200).json({ message: "Point table entry updated successfully", entry: updatedPointTableEntry });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Delete a point table entry
+app.delete("/api/point-table/:id", async (req, res) => {
+  try {
+    await PointTable.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Point table entry deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+
+// Add these routes and controllers to handle leagues CRUD operations
+
+// Fetch all leagues
+app.get("/api/leagues", async (req, res) => {
+  try {
+    const leagues = await League.find();
+    res.status(200).json(leagues);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Add a new league
+app.post("/api/leagues", async (req, res) => {
+  const { name, startDate, endDate } = req.body;
+
+  try {
+    const newLeague = new League({ name, startDate, endDate });
+    await newLeague.save();
+    res.status(201).json({ message: "League added successfully", league: newLeague });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Update a league
+app.put("/api/leagues/:id", async (req, res) => {
+  const { name, startDate, endDate } = req.body;
+
+  try {
+    const updatedLeague = await League.findByIdAndUpdate(
+      req.params.id,
+      { name, startDate, endDate },
+      { new: true }
+    );
+    res.status(200).json({ message: "League updated successfully", league: updatedLeague });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Delete a league
+app.delete("/api/leagues/:id", async (req, res) => {
+  try {
+    await League.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "League deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Add these routes and controllers to handle battle grounds CRUD operations
+
+// Fetch all battle grounds
+app.get("/api/battle-grounds", async (req, res) => {
+  try {
+    const battleGrounds = await BattleGround.find();
+    res.status(200).json(battleGrounds);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Add a new battle ground
+app.post("/api/battle-grounds", async (req, res) => {
+  const { name, rules, timing, prizePool } = req.body;
+
+  try {
+    const newBattleGround = new BattleGround({ name, rules, timing, prizePool });
+    await newBattleGround.save();
+    res.status(201).json({ message: "Battle ground added successfully", battleGround: newBattleGround });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Update a battle ground
+app.put("/api/battle-grounds/:id", async (req, res) => {
+  const { name, rules, timing, prizePool } = req.body;
+
+  try {
+    const updatedBattleGround = await BattleGround.findByIdAndUpdate(
+      req.params.id,
+      { name, rules, timing, prizePool },
+      { new: true }
+    );
+    res.status(200).json({ message: "Battle ground updated successfully", battleGround: updatedBattleGround });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Delete a battle ground
+app.delete("/api/battle-grounds/:id", async (req, res) => {
+  try {
+    await BattleGround.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Battle ground deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
 
 
 // Start the server
