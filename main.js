@@ -587,18 +587,8 @@ io.on("connect", (socket) => {
 
 
 
-//admin panel Crud
-
-const isAdmin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
-    return next();
-  } else {
-    return res.status(403).json({ message: "Access Forbidden" });
-  }
-};
-
 app.post("/api/admin/login", async (req, res) => {
-  // Existing code for admin login
+  const { email, password } = req.body;
 
   try {
     // Find admin user by email
@@ -616,9 +606,13 @@ app.post("/api/admin/login", async (req, res) => {
     }
 
     // Generate JWT token
-    const authToken = jwt.sign({ userId: adminUser._id, isAdmin: true }, secretKey, {
-      expiresIn: "24h",
-    });
+    const authToken = jwt.sign(
+      { userId: adminUser._id, isAdmin: true },
+      secretKey,
+      {
+        expiresIn: "24h",
+      }
+    );
 
     // Respond with the token
     res.status(200).json({ token: authToken });
@@ -628,18 +622,32 @@ app.post("/api/admin/login", async (req, res) => {
   }
 });
 
+
 // Admin Panel Route
-app.get("/api/admin", passport.authenticate("jwt", { session: false }), isAdmin, async (req, res) => {
-  // Your admin panel logic goes here
-  res.status(200).json({ message: "Welcome to the admin panel" });
-});
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.isAdmin) {
+    return next();
+  } else {
+    return res.status(403).json({ message: "Access Forbidden" });
+  }
+};
+
+app.get(
+  "/api/admin",
+  passport.authenticate("jwt", { session: false }),
+  isAdmin,
+  async (req, res) => {
+    res.status(200).json({ message: "Welcome to the admin panel" });
+  }
+);
+
 // Fixtures CRUD
 app.get("/api/fixtures", async (req, res) => {
   try {
     const fixtures = await Fixture.find();
     res.status(200).json(fixtures);
   } catch (error) {
-    console.error(error);
+    console.error(error);aa
     res.status(500).json({ message: "Server Error" });
   }
 });
