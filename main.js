@@ -581,16 +581,18 @@ io.on("connect", (socket) => {
     }
   });
 
-  // Handle shareRoomId event
-  socket.on("shareRoomId", (roomId, team1, team2) => {
-    try {
-      socket.broadcast.emit("sharedRoomId", { roomId, team1, team2 ,gameResult});
-    } catch (error) {
-      console.error("Error handling shareRoomId event:", error);
-    }
-  // Save game results on the server
-  saveResults(team1, team2, roomId, gameResult);
+// Backend: shareRoomId event handling
+socket.on("shareRoomId", ({ roomId, team1, team2, gameResult }) => {
+  try {
+  
+    saveResults(team1, team2, roomId, gameResult);
+
+    io.emit("sharedRoomId", { roomId, team1, team2, gameResult });
+  } catch (error) {
+    console.error("Error handling shareRoomId event:", error);
+  }
 });
+
 
   // Handle disconnect event
   socket.on("disconnect", () => {
