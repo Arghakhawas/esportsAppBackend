@@ -17,7 +17,7 @@ const helmet = require("helmet");
 
 const io = new Server(server, {
   cors: {
-    origin: "allowedOrigins",
+    origin: "https://dev--esportsempires.netlify.app",
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: "*",
@@ -359,9 +359,8 @@ app.get(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
-      // Fetch the user's profile
       const userId = req.user._id;
-      const user = await User.findById(userId).populate("profile");
+      const user = await User.findById(userId);
 
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -374,6 +373,30 @@ app.get(
     }
   }
 );
+
+app.post(
+  "/api/profile/avatar",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const { avatar } = req.body;
+
+    try {
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      user.avatar = avatar;
+      await user.save();
+
+      res.status(200).json({ message: "Avatar saved successfully" });
+    } catch (error) {
+      console.error("Error saving avatar:", error);
+      res.status(500).json({ message: "Server Error", error: error.message });
+    }
+  }
+);
+
 // cart routes
 app.post("/api/cart/add", passport.authenticate("jwt", { session: false }), async (req, res) => {
   const { productId, quantity } = req.body;
@@ -519,28 +542,7 @@ app.post(
   }
 );
 
-app.post(
-  "/api/profile/avatar",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    const { avatar } = req.body;
 
-    try {
-      const user = await User.findById(req.user._id);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      user.avatar = avatar;
-      await user.save();
-
-      res.status(200).json({ message: "Avatar saved successfully" });
-    } catch (error) {
-      console.error("Error saving avatar:", error);
-      res.status(500).json({ message: "Server Error", error: error.message });
-    }
-  }
-);
 // Inside the io.on("connect") block
 io.on("connect", (socket) => {
   console.log("A user connected");
