@@ -85,6 +85,7 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  avatar: String,
   isAdmin: {
     type: Boolean,
     default: false,
@@ -533,7 +534,7 @@ app.post(
       user.avatar = avatar;
       await user.save();
 
-      res.status(200).json({ message: "Avatar saved successfully", avatar });
+      res.status(200).json({ message: "Avatar saved successfully" });
     } catch (error) {
       console.error("Error saving avatar:", error);
       res.status(500).json({ message: "Server Error", error: error.message });
