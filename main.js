@@ -29,7 +29,7 @@ const io = new Server(server, {
 
 const allowedOrigins = [
   "https://dev--esportsempires.netlify.app",
-  "http://localhost:5173",
+ 
 ];
 
 const corsOptions = {
@@ -543,6 +543,22 @@ app.post(
 // Inside the io.on("connect") block
 io.on("connect", (socket) => {
   console.log("A user connected");
+   // Handle WebRTC signaling events
+   socket.on("offer", (offer, targetSocketId) => {
+    // Broadcast the offer to the target peer
+    socket.to(targetSocketId).emit("offer", offer, socket.id);
+  });
+
+  socket.on("answer", (answer, targetSocketId) => {
+    // Broadcast the answer to the target peer
+    socket.to(targetSocketId).emit("answer", answer);
+  });
+
+  socket.on("ice-candidate", (candidate, targetSocketId) => {
+    // Broadcast the ICE candidate to the target peer
+    socket.to(targetSocketId).emit("ice-candidate", candidate);
+  });
+
 
   // Handle stream event
   socket.on("stream", (stream) => {
@@ -565,16 +581,18 @@ io.on("connect", (socket) => {
   // Handle shareRoomId event
   socket.on("shareRoomId", (roomId, team1, team2) => {
     try {
-      socket.broadcast.emit("sharedRoomId", { roomId, team1, team2 });
+      socket.broadcast.emit("sharedRoomId", { roomId, team1, team2 ,gameResult});
     } catch (error) {
       console.error("Error handling shareRoomId event:", error);
     }
-  });
+  // Save game results on the server
+  saveResults(team1, team2, roomId, gameResult);
+});
 
   // Handle disconnect event
   socket.on("disconnect", () => {
     console.log("User disconnected");
-  });
+  }); 
 
   // Handle socket errors
   socket.on("error", (err) => {
