@@ -29,7 +29,7 @@ const io = new Server(server, {
 
 const allowedOrigins = [
   "https://dev--esportsempires.netlify.app",
- 
+
 ];
 
 const corsOptions = {
@@ -140,7 +140,7 @@ const tournamentEntrySchema = new mongoose.Schema({
   utrNo: String,
 });
 
-// Create a Mongoose model for tournament entry
+
 const TournamentEntry = mongoose.model("TournamentEntry", tournamentEntrySchema);
 const productSchema = new mongoose.Schema({
   name: String,
@@ -546,19 +546,19 @@ app.post(
 // Inside the io.on("connect") block
 io.on("connect", (socket) => {
   console.log("A user connected");
-   // Handle WebRTC signaling events
+
    socket.on("offer", (offer, targetSocketId) => {
-    // Broadcast the offer to the target peer
+  
     socket.to(targetSocketId).emit("offer", offer, socket.id);
   });
 
   socket.on("answer", (answer, targetSocketId) => {
-    // Broadcast the answer to the target peer
+
     socket.to(targetSocketId).emit("answer", answer);
   });
 
   socket.on("ice-candidate", (candidate, targetSocketId) => {
-    // Broadcast the ICE candidate to the target peer
+   
     socket.to(targetSocketId).emit("ice-candidate", candidate);
   });
 
@@ -608,6 +608,7 @@ socket.on("shareRoomId", ({ roomId, team1, team2, gameResult }) => {
 
 
 
+
 app.post("/api/admin/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -641,13 +642,24 @@ app.post("/api/admin/login", async (req, res) => {
   }
 });
 
-
+// Middleware to check for admin token
 const isAdmin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
-    return next();
-  } else {
-    return res.status(403).json({ message: "Access Forbidden" });
+  const token = req.headers.authorization;
+
+  if (token && token.startsWith("Bearer ")) {
+    const authToken = token.substring(7, token.length);
+
+    try {
+      const decoded = jwt.verify(authToken, secretKey);
+      if (decoded && decoded.isAdmin) {
+        return next();
+      }
+    } catch (error) {
+      console.error("Admin token verification failed:", error);
+    }
   }
+
+  return res.status(403).json({ message: "Access Forbidden" });
 };
 
 app.get(
@@ -658,6 +670,7 @@ app.get(
     res.status(200).json({ message: "Welcome to the admin panel" });
   }
 );
+
 
 // Fixtures CRUD
 app.get("/api/fixtures", async (req, res) => {
@@ -872,7 +885,6 @@ app.delete("/api/battle-grounds/:id", async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
-
 
 
 // Start the server
