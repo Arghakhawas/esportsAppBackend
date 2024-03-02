@@ -678,7 +678,7 @@ app.get("/api/fixtures", async (req, res) => {
     const fixtures = await Fixture.find();
     res.status(200).json(fixtures);
   } catch (error) {
-    console.error(error);aa
+    console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 });
