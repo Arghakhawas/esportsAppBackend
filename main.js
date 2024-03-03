@@ -445,7 +445,39 @@ app.get("/api/products", async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
+// Endpoint for creating a new tournament
+app.post('/api/tournament/create', (req, res) => {
+  const {
+    gameCategory,
+    gameMode,
+    map,
+    entryFee,
+    prizeDistribution,
+    registrationDeadline,
+  } = req.body;
 
+  // Validate the incoming data (you may add more validations)
+  if (!gameCategory || !gameMode || !map || !entryFee || !prizeDistribution || !registrationDeadline) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Create a new tournament object
+  const newTournament = {
+    id: tournaments.length + 1,
+    gameCategory,
+    gameMode,
+    map,
+    entryFee,
+    prizeDistribution,
+    registrationDeadline,
+  };
+
+  // Add the new tournament to the array (replace this with a database insertion)
+  tournaments.push(newTournament);
+
+  // Respond with the created tournament
+  res.status(201).json(newTournament);
+});
 app.post(
   "/api/tournament/join",
   passport.authenticate("jwt", { session: false }),
@@ -608,7 +640,6 @@ socket.on("shareRoomId", ({ roomId, team1, team2, gameResult }) => {
 
 
 
-
 app.post("/api/admin/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -642,26 +673,6 @@ app.post("/api/admin/login", async (req, res) => {
   }
 });
 
-// Middleware to check for admin token
-const isAdmin = (req, res, next) => {
-  const token = req.headers.authorization;
-
-  if (token && token.startsWith("Bearer ")) {
-    const authToken = token.substring(7, token.length);
-
-    try {
-      const decoded = jwt.verify(authToken, secretKey);
-      if (decoded && decoded.isAdmin) {
-        return next();
-      }
-    } catch (error) {
-      console.error("Admin token verification failed:", error);
-    }
-  }
-
-  return res.status(403).json({ message: "Access Forbidden" });
-};
-
 app.get(
   "/api/admin",
   passport.authenticate("jwt", { session: false }),
@@ -678,7 +689,7 @@ app.get("/api/fixtures", async (req, res) => {
     const fixtures = await Fixture.find();
     res.status(200).json(fixtures);
   } catch (error) {
-    console.error(error);
+    console.error(error);aa
     res.status(500).json({ message: "Server Error" });
   }
 });
