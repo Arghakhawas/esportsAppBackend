@@ -637,6 +637,13 @@ socket.on("shareRoomId", ({ roomId, team1, team2, gameResult }) => {
   });
 });
 
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.isAdmin) {
+    return next();
+  } else {
+    return res.status(403).json({ message: "Access denied: Admin privileges required" });
+  }
+};
 
 
 
