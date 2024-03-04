@@ -445,8 +445,9 @@ app.get("/api/products", async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
-// Endpoint for creating a new tournament
+// ...
 app.post('/api/tournament/create', (req, res) => {
+
   const {
     gameCategory,
     gameMode,
@@ -456,12 +457,18 @@ app.post('/api/tournament/create', (req, res) => {
     registrationDeadline,
   } = req.body;
 
+  // Extract image file from FormData
+  const imageFile = req.files && req.files.image;
+
   // Validate the incoming data (you may add more validations)
-  if (!gameCategory || !gameMode || !map || !entryFee || !prizeDistribution || !registrationDeadline) {
+  if (!gameCategory || !gameMode || !map || !entryFee || !prizeDistribution || !registrationDeadline || !imageFile) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  // Create a new tournament object
+  // Process the image file as needed (save to storage, etc.)
+  const imagePath = '/path/to/store/image'; // Replace with your image storage path
+
+  // Create a new tournament object with the image path
   const newTournament = {
     id: tournaments.length + 1,
     gameCategory,
@@ -470,6 +477,7 @@ app.post('/api/tournament/create', (req, res) => {
     entryFee,
     prizeDistribution,
     registrationDeadline,
+    image: imagePath,
   };
 
   // Add the new tournament to the array (replace this with a database insertion)
@@ -478,6 +486,8 @@ app.post('/api/tournament/create', (req, res) => {
   // Respond with the created tournament
   res.status(201).json(newTournament);
 });
+
+
 app.post(
   "/api/tournament/join",
   passport.authenticate("jwt", { session: false }),
