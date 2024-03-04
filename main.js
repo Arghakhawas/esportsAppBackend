@@ -69,6 +69,17 @@ db.once("open", () => {
   console.log("Connected to MongoDB Atlas");
 });
 
+const tournamentSchema = new mongoose.Schema({
+  gameCategory: String,
+  gameMode: String,
+  map: String,
+  entryFee: String,
+  prizeDistribution: String,
+  registrationDeadline: String,
+  image: String,
+});
+
+const Tournament = mongoose.model("Tournament", tournamentSchema);
 
 const userSchema = new mongoose.Schema({
   username: String,
@@ -444,49 +455,53 @@ app.get("/api/products", async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
+});// Endpoint to handle tournament creation
+const tournaments = [];  // Assuming you have a tournaments array
+
+app.post('/api/tournament/create', async (req, res) => {
+  try {
+    // Extract form data
+    const {
+      gameCategory,
+      gameMode,
+      map,
+      entryFee,
+      prizeDistribution,
+      registrationDeadline,
+    } = req.body;
+
+    // Extract image file from FormData
+    const imageFile = req.files && req.files.image;
+
+    // Validate the incoming data (you may add more validations)
+    if (!gameCategory || !gameMode || !map || !entryFee || !prizeDistribution || !registrationDeadline || !imageFile) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Process the image file as needed (save to storage, etc.)
+    const imagePath = '/path/to/store/image'; // Replace with your image storage path
+
+ // Create a new tournament object with the image path
+ const newTournament = new Tournament({
+  gameCategory,
+  gameMode,
+  map,
+  entryFee,
+  prizeDistribution,
+  registrationDeadline,
+  image: imagePath,
 });
-// ...
-app.post('/api/tournament/create', (req, res) => {
-  // Extract form data
-  const {
-    gameCategory,
-    gameMode,
-    map,
-    entryFee,
-    prizeDistribution,
-    registrationDeadline,
-  } = req.body;
 
-  // Extract image file from FormData
-  const imageFile = req.files && req.files.image;
+// Save the new tournament to the database
+await newTournament.save();
 
-  // Validate the incoming data (you may add more validations)
-  if (!gameCategory || !gameMode || !map || !entryFee || !prizeDistribution || !registrationDeadline || !imageFile) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    // Respond with the created tournament
+    res.status(201).json(newTournament);
+  } catch (error) {
+    console.error('Error creating tournament:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-
-  // Process the image file as needed (save to storage, etc.)
-  const imagePath = '/path/to/store/image'; // Replace with your image storage path
-
-  // Create a new tournament object with the image path
-  const newTournament = {
-    id: tournaments.length + 1,
-    gameCategory,
-    gameMode,
-    map,
-    entryFee,
-    prizeDistribution,
-    registrationDeadline,
-    image: imagePath,
-  };
-
-  // Add the new tournament to the array (replace this with a database insertion)
-  tournaments.push(newTournament);
-
-  // Respond with the created tournament
-  res.status(201).json(newTournament);
 });
-
 
 app.post(
   "/api/tournament/join",
