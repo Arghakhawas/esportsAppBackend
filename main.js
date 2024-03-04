@@ -446,8 +446,7 @@ app.get("/api/products", async (req, res) => {
   }
 });
 // ...
-app.post('/api/tournament/create', (req, res) => {
-
+app.post('/api/tournament/create', async (req, res) => {
   const {
     gameCategory,
     gameMode,
@@ -457,20 +456,17 @@ app.post('/api/tournament/create', (req, res) => {
     registrationDeadline,
   } = req.body;
 
-  // Extract image file from FormData
   const imageFile = req.files && req.files.image;
 
-  // Validate the incoming data (you may add more validations)
   if (!gameCategory || !gameMode || !map || !entryFee || !prizeDistribution || !registrationDeadline || !imageFile) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  // Process the image file as needed (save to storage, etc.)
+  // Save the image file and get the imagePath
   const imagePath = '/path/to/store/image'; // Replace with your image storage path
 
-  // Create a new tournament object with the image path
-  const newTournament = {
-    id: tournaments.length + 1,
+  // Persist tournament data to the database (replace with your database operation)
+  const newTournament = new Tournament({
     gameCategory,
     gameMode,
     map,
@@ -478,14 +474,17 @@ app.post('/api/tournament/create', (req, res) => {
     prizeDistribution,
     registrationDeadline,
     image: imagePath,
-  };
+  });
 
-  // Add the new tournament to the array (replace this with a database insertion)
-  tournaments.push(newTournament);
-
-  // Respond with the created tournament
-  res.status(201).json(newTournament);
+  try {
+    const savedTournament = await newTournament.save();
+    res.status(201).json(savedTournament);
+  } catch (error) {
+    console.error('Error saving tournament:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
+
 
 
 app.post(
