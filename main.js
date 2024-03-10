@@ -9,11 +9,13 @@ const cors = require("cors");
 const http = require("http");
 const socketIo = require("socket.io");
 const { ExpressPeerServer } = require("peer");
-const peerServer = ExpressPeerServer(server, {
+const { v4: uuidv4 } = require('uuid');
+
+
+const peerServer = ExpressPeerServer(app, {
   debug: true,
 });
 app.use("/peerjs", peerServer);
-
 
 const app = express();
 const server = http.createServer(app);
