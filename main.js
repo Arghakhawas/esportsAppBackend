@@ -11,8 +11,6 @@
   const { ExpressPeerServer } = require("peer");
   const { v4: uuidv4 } = require('uuid');
 
-
-
   const app = express();
   const server = http.createServer(app);
   const io = socketIo(server);
