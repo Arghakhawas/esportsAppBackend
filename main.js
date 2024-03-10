@@ -1,75 +1,68 @@
-  const express = require("express");
-  const mongoose = require("mongoose");
-  const bodyParser = require("body-parser");
-  const passport = require("passport");
-  const cookieParser = require("cookie-parser");
-  const bcrypt = require("bcryptjs");
-  const jwt = require("jsonwebtoken");
-  const cors = require("cors");
-  const http = require("http");
-  const socketIo = require("socket.io");
-  const { ExpressPeerServer } = require("peer");
-  const { v4: uuidv4 } = require('uuid');
-  const { Readable } = require('readable-stream');
-  const multer = require('multer');
-  const storage = multer.memoryStorage(); // Change this according to your needs
-  const upload = multer({ storage: storage });
+const express = require("express");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const passport = require("passport");
+const cookieParser = require("cookie-parser");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const cors = require("cors");
+const http = require("http");
+const socketIo = require("socket.io");
+const { ExpressPeerServer } = require("peer");
+const { v4: uuidv4 } = require('uuid');
+const { Readable } = require('readable-stream');
+const multer = require('multer');
+const storage = multer.memoryStorage(); // Change this according to your needs
+const upload = multer({ storage: storage });
 
-  const app = express();
-  const server = http.createServer(app);
-  const io = socketIo(server);
-  const JwtStrategy = require("passport-jwt").Strategy;
-  const ExtractJwt = require("passport-jwt").ExtractJwt;
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+const JwtStrategy = require("passport-jwt").Strategy;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
 
+const helmet = require("helmet");
 
-  const helmet = require("helmet");
+const peerServer = ExpressPeerServer(server, { debug: true });
+app.use("/peerjs", peerServer);
 
-  const peerServer = ExpressPeerServer(app, { debug: true });
-  app.use("/peerjs", peerServer);
-  
+const allowedOrigins = [
+  "https://dev--esportsempires.netlify.app",
+];
 
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: "GET,PUT,POST,DELETE",
+  credentials: true,
+};
+app.use(cors(corsOptions));
+app.use(cookieParser());
+app.use(helmet());
 
-  const allowedOrigins = [
-    "https://dev--esportsempires.netlify.app",
+// MongoDB connection
+const atlasURI =
+  "mongodb+srv://1234:1234@atlascluster.hflwol3.mongodb.net/test";
+mongoose.connect(atlasURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
-  ];
+const db = mongoose.connection;
 
-  const corsOptions = {
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: "GET,PUT,POST,DELETE",
-    credentials: true,
-  };
-  app.use(cors(corsOptions));
-  app.use(cookieParser());
-  app.use(helmet());
+db.on("error", (error) => {
+  console.error("MongoDB connection error:", error);
+});
 
+db.once("open", () => {
+  console.log("Connected to MongoDB Atlas");
+});
 
-
-
-
-  // MongoDB connection
-  const atlasURI =
-    "mongodb+srv://1234:1234@atlascluster.hflwol3.mongodb.net/test";
-  mongoose.connect(atlasURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    
-  });
-  const db = mongoose.connection;
-
-  db.on("error", (error) => {
-    console.error("MongoDB connection error:", error);
-  });
-
-  db.once("open", () => {
-    console.log("Connected to MongoDB Atlas");
-  });
 
   const tournamentSchema = new mongoose.Schema({
     gameCategory: String,
