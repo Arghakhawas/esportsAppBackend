@@ -14,7 +14,6 @@ const peerServer = ExpressPeerServer(server, {
 });
 app.use("/peerjs", peerServer);
 
-const uuid = require('node-uuid');
 
 const app = express();
 const server = http.createServer(app);
