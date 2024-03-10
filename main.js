@@ -503,21 +503,21 @@ db.once("open", () => {
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
       const { gameId, userName, phoneNumber, formData } = req.body;
-
+  
       try {
-        // Create a new tournament entry document
+        // Include the selected game category in the form data
         const tournamentEntry = new TournamentEntry({
           user: req.user._id,
           gameId,
           userName,
           phoneNumber,
-          formData,
+          formData: { ...formData, selectedGameCategory: formData.selectedGameCategory },
           paymentStatus: "Pending",
         });
-
+  
         // Save the tournament entry to the database
         await tournamentEntry.save();
-
+  
         res
           .status(201)
           .json({ message: "Form submitted successfully", tournamentEntry });
@@ -527,7 +527,7 @@ db.once("open", () => {
       }
     }
   );
-
+  
   // Handle payment submission
   app.post(
     "/api/tournament/submitpayment",
