@@ -7,23 +7,21 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const http = require("http");
-const { Server } = require("socket.io");
+const socketIo = require("socket.io");
+const { ExpressPeerServer } = require("peer");
+
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
-const server = http.createServer(app);
+
 
 const helmet = require("helmet");
-
-const io = new Server(server, {
-  cors: {
-    origin: "https://dev--esportsempires.netlify.app",
-    methods: ["GET", "POST"],
-    credentials: true,
-    allowedHeaders: "*",
-  },
+const peerServer = ExpressPeerServer(server, {
+  debug: true,
 });
-
+app.use("/peerjs", peerServer);
 
 
 
@@ -562,10 +560,7 @@ app.post(
   }
 );
 
-//Recording Sc  reen
-app.get("/api/livestreaming", (req, res) => {
-  res.send("<h1>Server is running!</h1>");
-});
+
 
 app.post(
   "/api/change-password",
@@ -599,69 +594,37 @@ app.post(
   }
 );
 
-
-// Inside the io.on("connect") block
+// Handle socket.io connections
 io.on("connect", (socket) => {
-  console.log("A user connected");
+  console.log("User connected:", socket.id);
 
-   socket.on("offer", (offer, targetSocketId) => {
-  
-    socket.to(targetSocketId).emit("offer", offer, socket.id);
+  // Handle WebRTC signaling
+  socket.on("offer", (offer, targetSocketId) => {
+    io.to(targetSocketId).emit("offer", offer, socket.id);
   });
 
   socket.on("answer", (answer, targetSocketId) => {
-
-    socket.to(targetSocketId).emit("answer", answer);
+    io.to(targetSocketId).emit("answer", answer);
   });
 
   socket.on("ice-candidate", (candidate, targetSocketId) => {
-   
-    socket.to(targetSocketId).emit("ice-candidate", candidate);
+    io.to(targetSocketId).emit("ice-candidate", candidate);
   });
 
-
-  // Handle stream event
+  // Handle live streaming
   socket.on("stream", (stream) => {
-    try {
-      socket.broadcast.emit("stream", stream);
-    } catch (error) {
-      console.error("Error handling stream event:", error);
-    }
+    io.emit("stream", stream);
   });
 
-  // Handle stopStream event
   socket.on("stopStream", () => {
-    try {
-      socket.broadcast.emit("stopStream");
-    } catch (error) {
-      console.error("Error handling stopStream event:", error);
-    }
+    io.emit("stopStream");
   });
-
-// Backend: shareRoomId event handling
-socket.on("shareRoomId", ({ roomId, team1, team2, gameResult }) => {
-  try {
-  
-    saveResults(team1, team2, roomId, gameResult);
-
-    io.emit("sharedRoomId", { roomId, team1, team2, gameResult });
-  } catch (error) {
-    console.error("Error handling shareRoomId event:", error);
-  }
-});
-
 
   // Handle disconnect event
   socket.on("disconnect", () => {
-    console.log("User disconnected");
-  }); 
-
-  // Handle socket errors
-  socket.on("error", (err) => {
-    console.error("Socket error:", err);
+    console.log("User disconnected:", socket.id);
   });
 });
-
 const isAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     return next();
@@ -819,7 +782,6 @@ app.delete("/api/point-table/:id", async (req, res) => {
 });
 
 
-// Add these routes and controllers to handle leagues CRUD operations
 
 // Fetch all leagues
 app.get("/api/leagues", async (req, res) => {
@@ -874,7 +836,6 @@ app.delete("/api/leagues/:id", async (req, res) => {
   }
 });
 
-// Add these routes and controllers to handle battle grounds CRUD operations
 
 // Fetch all battle grounds
 app.get("/api/battle-grounds", async (req, res) => {
