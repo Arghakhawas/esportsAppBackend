@@ -10,9 +10,7 @@
   const socketIo = require("socket.io");
   const { ExpressPeerServer } = require("peer");
   const { v4: uuidv4 } = require('uuid');
-  const peerServer = ExpressPeerServer(app, { debug: true });
-  app.use("/peerjs", peerServer);
-  
+
 
   const app = express();
   const server = http.createServer(app);
@@ -23,7 +21,9 @@
 
   const helmet = require("helmet");
 
-
+  const peerServer = ExpressPeerServer(app, { debug: true });
+  app.use("/peerjs", peerServer);
+  
 
 
   const allowedOrigins = [
