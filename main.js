@@ -10,6 +10,10 @@
   const socketIo = require("socket.io");
   const { ExpressPeerServer } = require("peer");
   const { v4: uuidv4 } = require('uuid');
+  const { Readable } = require('readable-stream');
+  const multer = require('multer');
+  const storage = multer.memoryStorage(); // Change this according to your needs
+  const upload = multer({ storage: storage });
 
   const app = express();
   const server = http.createServer(app);
@@ -456,7 +460,7 @@
   });// Endpoint to handle tournament creation
   const tournaments = [];  // Assuming you have a tournaments array
 
-  app.post('/api/tournament/create', async (req, res) => {
+  app.post('/api/tournament/create', upload.single('image'), async (req, res) => {
     try {
       // Extract form data
       const {
@@ -469,7 +473,7 @@
       } = req.body;
 
       // Extract image file from FormData
-      const imageFile = req.files && req.files.image;
+      const imageFile = req.file;
 
       // Validate the incoming data (you may add more validations)
       if (!gameCategory || !gameMode || !map || !entryFee || !prizeDistribution || !registrationDeadline || !imageFile) {
