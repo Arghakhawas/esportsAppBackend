@@ -16,6 +16,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "password": "^0.1.1",
+    "peers": "^0.1.0",
     "socket.io": "^4.7.4"
   },
   "scripts": {
