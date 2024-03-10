@@ -91,7 +91,7 @@ db.once("open", () => {
       type: Number,
       default: 0,
     },
-    avatar: String,
+
     isAdmin: {
       type: Boolean,
       default: false,
