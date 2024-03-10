@@ -9,6 +9,12 @@ const cors = require("cors");
 const http = require("http");
 const socketIo = require("socket.io");
 const { ExpressPeerServer } = require("peer");
+const peerServer = ExpressPeerServer(server, {
+  debug: true,
+});
+app.use("/peerjs", peerServer);
+
+const uuid = require('node-uuid');
 
 const app = express();
 const server = http.createServer(app);
@@ -18,10 +24,7 @@ const ExtractJwt = require("passport-jwt").ExtractJwt;
 
 
 const helmet = require("helmet");
-const peerServer = ExpressPeerServer(server, {
-  debug: true,
-});
-app.use("/peerjs", peerServer);
+
 
 
 
