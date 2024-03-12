@@ -9,7 +9,6 @@ const cors = require("cors");
 const http = require("http");
 const socketIo = require("socket.io");
 const { ExpressPeerServer } = require("peer");
-const { v4: uuidv4 } = require('uuid');
 
 const multer = require('multer');
 const storage = multer.memoryStorage(); // Change this according to your needs

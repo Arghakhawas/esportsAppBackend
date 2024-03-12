@@ -23,8 +23,7 @@
     "peers": "^0.1.0",
     
 
-    "socket.io": "^4.1.2",
-    "uuid": "^8.3.2"
+    "socket.io": "^4.1.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
