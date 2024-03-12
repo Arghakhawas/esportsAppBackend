@@ -10,14 +10,15 @@ const http = require("http");
 const socketIo = require("socket.io");
 const { ExpressPeerServer } = require("peer");
 const { v4: uuidv4 } = require('uuid');
-const { Readable } = require('readable-stream');
+
 const multer = require('multer');
 const storage = multer.memoryStorage(); // Change this according to your needs
 const upload = multer({ storage: storage });
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = require("socket.io")(server);
+
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 
