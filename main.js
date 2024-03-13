@@ -18,7 +18,8 @@ const helmet = require("helmet");
 
 
 
-
+const peerServer = ExpressPeerServer(server, { debug: true });
+app.use("/peerjs", peerServer);
 const allowedOrigins = [
   "https://dev--esportsempires.netlify.app",
 
