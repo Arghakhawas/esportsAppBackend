@@ -10,14 +10,19 @@ const http = require("http");
 const socketIo = require("socket.io");
 const { ExpressPeerServer } = require("peer");
 const multer = require('multer');
+const storage = multer.memoryStorage(); 
+const upload = multer({ storage: storage });
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = require("socket.io")(server);
 const peerServer = ExpressPeerServer(server, { debug: true });
 app.use("/peerjs", peerServer);
 
-const allowedOrigins = ["https://dev--esportsempires.netlify.app"];
+const allowedOrigins = [
+  "https://dev--esportsempires.netlify.app",
+];
+
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -38,6 +43,7 @@ mongoose.connect(atlasURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+
 const db = mongoose.connection;
 
 db.on("error", (error) => {
@@ -47,6 +53,7 @@ db.on("error", (error) => {
 db.once("open", () => {
   console.log("Connected to MongoDB Atlas");
 });
+
 
   const tournamentSchema = new mongoose.Schema({
     gameCategory: String,
