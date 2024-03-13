@@ -9,13 +9,20 @@ const cors = require("cors");
 const http = require("http");
 const socketIo = require("socket.io");
 const { ExpressPeerServer } = require("peer");
+
 const multer = require('multer');
-const storage = multer.memoryStorage(); 
+const storage = multer.memoryStorage(); // Change this according to your needs
 const upload = multer({ storage: storage });
 
 const app = express();
 const server = http.createServer(app);
 const io = require("socket.io")(server);
+
+const JwtStrategy = require("passport-jwt").Strategy;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
+
+const helmet = require("helmet");
+
 const peerServer = ExpressPeerServer(server, { debug: true });
 app.use("/peerjs", peerServer);
 
@@ -36,9 +43,11 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(cookieParser());
+app.use(helmet());
 
 // MongoDB connection
-const atlasURI = "mongodb+srv://1234:1234@atlascluster.hflwol3.mongodb.net/test";
+const atlasURI =
+  "mongodb+srv://1234:1234@atlascluster.hflwol3.mongodb.net/test";
 mongoose.connect(atlasURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
