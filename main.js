@@ -9,27 +9,15 @@ const cors = require("cors");
 const http = require("http");
 const socketIo = require("socket.io");
 const { ExpressPeerServer } = require("peer");
-
 const multer = require('multer');
-const storage = multer.memoryStorage(); // Change this according to your needs
-const upload = multer({ storage: storage });
 
 const app = express();
 const server = http.createServer(app);
-const io = require("socket.io")(server);
-
-const JwtStrategy = require("passport-jwt").Strategy;
-const ExtractJwt = require("passport-jwt").ExtractJwt;
-
-const helmet = require("helmet");
-
+const io = socketIo(server);
 const peerServer = ExpressPeerServer(server, { debug: true });
 app.use("/peerjs", peerServer);
 
-const allowedOrigins = [
-  "https://dev--esportsempires.netlify.app",
-];
-
+const allowedOrigins = ["https://dev--esportsempires.netlify.app"];
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -43,16 +31,13 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(cookieParser());
-app.use(helmet());
 
 // MongoDB connection
-const atlasURI =
-  "mongodb+srv://1234:1234@atlascluster.hflwol3.mongodb.net/test";
+const atlasURI = "mongodb+srv://1234:1234@atlascluster.hflwol3.mongodb.net/test";
 mongoose.connect(atlasURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
-
 const db = mongoose.connection;
 
 db.on("error", (error) => {
@@ -62,7 +47,6 @@ db.on("error", (error) => {
 db.once("open", () => {
   console.log("Connected to MongoDB Atlas");
 });
-
 
   const tournamentSchema = new mongoose.Schema({
     gameCategory: String,
