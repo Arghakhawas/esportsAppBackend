@@ -11,7 +11,7 @@ const socketIo = require("socket.io");
 const { ExpressPeerServer } = require("peer");
 
 const multer = require('multer');
-const storage = multer.memoryStorage(); // Change this according to your needs
+const storage = multer.memoryStorage(); 
 const upload = multer({ storage: storage });
 
 const app = express();
