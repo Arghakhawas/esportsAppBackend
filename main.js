@@ -12,6 +12,7 @@ const app = express();
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const server = http.createServer(app);
+const { ExpressPeerServer } = require("peer");
 
 const helmet = require("helmet");
 
@@ -589,38 +590,6 @@ app.post(
   }
 );
 
-// Handle socket.io connections
-io.on("connect", (socket) => {
-  console.log("User connected:", socket.id);
-
-  // Handle WebRTC signaling
-  socket.on("offer", (offer, targetSocketId) => {
-    io.to(targetSocketId).emit("offer", offer, socket.id);
-  });
-
-  socket.on("answer", (answer, targetSocketId) => {
-    io.to(targetSocketId).emit("answer", answer);
-  });
-
-  socket.on("ice-candidate", (candidate, targetSocketId) => {
-    io.to(targetSocketId).emit("ice-candidate", candidate);
-  });
-
-  // Handle live streaming
-  socket.on("stream", (stream) => {
-    io.emit("stream", stream);
-  });
-
-  socket.on("stopStream", () => {
-    io.emit("stopStream");
-  });
-
-
-  // Handle socket errors
-  socket.on("error", (err) => {
-    console.error("Socket error:", err);
-  });
-});
 
 const isAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
