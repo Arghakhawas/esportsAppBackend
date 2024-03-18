@@ -293,7 +293,7 @@ Date:   Sun Mar 10 21:19:26 2024 +0530
     start
 
 [33mcommit 00519b61343596228477121e76b34873c69b1cc9[m
-Author: Arghakhawas <argha820@gmail.com>
+Author: Arghakhawas <argha820@gmail.com>00519b61343596228477121e76b34873c69b1cc9
 Date:   Mon Mar 4 22:13:40 2024 +0530
 
     admin

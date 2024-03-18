@@ -670,7 +670,6 @@ const isAdmin = (req, res, next) => {
   }
 };
 
-
 app.post("/api/admin/login", async (req, res) => {
   const { email, password } = req.body;
 
