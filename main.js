@@ -14,7 +14,6 @@ const ExtractJwt = require("passport-jwt").ExtractJwt;
 const server = http.createServer(app);
 
 const helmet = require("helmet");
-
 const io = new Server(server, {
   cors: {
     origin: "https://dev--esportsempires.netlify.app",
