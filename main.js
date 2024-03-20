@@ -616,23 +616,23 @@ io.on("connect", (socket) => {
 
 
   // Handle stream event
-  socket.on("mobile-stream", (stream) => {
-    try {
-      // Broadcast the mobile screen stream to all clients
-      socket.broadcast.emit("mobile-stream", stream);
-    } catch (error) {
-      console.error("Error handling mobile-stream event:", error);
-    }
-  });
+socket.on("mobile-stream", (stream) => {
+  try {
+    // Broadcast the mobile screen stream to all clients, including the sender
+    io.emit("mobile-stream", stream);
+  } catch (error) {
+    console.error("Error handling mobile-stream event:", error);
+  }
+});
 
-  // Handle stopStream event
-  socket.on("stopStream", () => {
-    try {
-      socket.broadcast.emit("stopStream");
-    } catch (error) {
-      console.error("Error handling stopStream event:", error);
-    }
-  });
+// Handle stopStream event
+socket.on("stopStream", () => {
+  try {
+    io.emit("stopStream");
+  } catch (error) {
+    console.error("Error handling stopStream event:", error);
+  }
+});
 
 // Backend: shareRoomId event handling
 socket.on("shareRoomId", ({ roomId, team1, team2, gameResult }) => {
