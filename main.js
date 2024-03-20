@@ -561,10 +561,6 @@ app.post(
   }
 );
 
-//Recording Sc  reen
-app.get("/api/livestreaming", (req, res) => {
-  res.send("<h1>Server is running!</h1>");
-});
 
 app.post(
   "/api/change-password",
@@ -620,11 +616,12 @@ io.on("connect", (socket) => {
 
 
   // Handle stream event
-  socket.on("stream", (stream) => {
+  socket.on("mobile-stream", (stream) => {
     try {
-      socket.broadcast.emit("stream", stream);
+      // Broadcast the mobile screen stream to all clients
+      socket.broadcast.emit("mobile-stream", stream);
     } catch (error) {
-      console.error("Error handling stream event:", error);
+      console.error("Error handling mobile-stream event:", error);
     }
   });
 
