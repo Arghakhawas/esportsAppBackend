@@ -157,9 +157,15 @@ const productSchema = new mongoose.Schema({
   description: String,
   price: Number,
   imageUrl: String,
+  type: String, // e.g., "monitor", "desktop", "accessory"
+  customizationOptions: mongoose.Schema.Types.Mixed, // Store customization options dynamically
 });
 
+
 const Product = mongoose.model("Product", productSchema);
+
+// Routes for adding and fetching products (similar to the existing routes)
+
 
 const cartItemSchema = new mongoose.Schema({
   productId: {
@@ -407,7 +413,7 @@ app.post(
   }
 );
 
-// cart routes
+// Add to Cart
 app.post("/api/cart/add", passport.authenticate("jwt", { session: false }), async (req, res) => {
   const { productId, quantity } = req.body;
   try {
@@ -442,6 +448,7 @@ app.post("/api/cart/add", passport.authenticate("jwt", { session: false }), asyn
   }
 });
 
+// Other cart routes for updating and removing items
 
 
 
@@ -454,7 +461,7 @@ app.get("/api/products", async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
-});// Endpoint to handle tournament creation
+});
 const tournaments = [];  // Assuming you have a tournaments array
 
 app.post('/api/tournament/create', async (req, res) => {
