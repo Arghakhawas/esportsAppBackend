@@ -664,7 +664,7 @@ socket.on("shareRoomId", ({ roomId, team1, team2, gameResult }) => {
     console.error("Socket error:", err);
   });
 });
-// Middleware to check if user is an admin
+// Middleware to check if user is admin
 const isAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     return next();
@@ -711,6 +711,7 @@ app.post("/api/admin/login", async (req, res) => {
 app.get("/api/admin/panel", passport.authenticate("jwt", { session: false }), isAdmin, async (req, res) => {
   res.status(200).json({ message: "Welcome to the admin panel" });
 });
+
 // Fixtures CRUD
 app.get("/api/fixtures", async (req, res) => {
   try {
