@@ -665,8 +665,6 @@ socket.on("shareRoomId", ({ roomId, team1, team2, gameResult }) => {
   });
 });
 
-
-// Admin Login Route
 app.post("/api/admin/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -699,8 +697,6 @@ app.post("/api/admin/login", async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
-
-// Middleware to check if user is admin
 const isAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     return next();
@@ -711,7 +707,13 @@ const isAdmin = (req, res, next) => {
 
 // Admin Panel Route - Secured with isAdmin middleware
 app.get("/api/admin/panel", passport.authenticate("jwt", { session: false }), isAdmin, async (req, res) => {
-  res.status(200).json({ message: "Welcome to the admin panel" });
+  try {
+    // If the request reaches here, it means the user is authenticated as an admin
+    res.status(200).json({ message: "Welcome to the admin panel" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
 });
 
 
