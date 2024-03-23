@@ -697,6 +697,8 @@ app.post("/api/admin/login", async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
+
+// Middleware to verify admin privileges
 const isAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     return next();
