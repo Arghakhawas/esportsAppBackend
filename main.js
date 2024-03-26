@@ -448,7 +448,7 @@ app.post("/api/cart/add", passport.authenticate("jwt", { session: false }), asyn
   }
 });
 
-// Other cart routes for updating and removing items
+
 
 
 
@@ -641,17 +641,6 @@ socket.on("stopStream", () => {
   }
 });
 
-// Backend: shareRoomId event handling
-socket.on("shareRoomId", ({ roomId, team1, team2, gameResult }) => {
-  try {
-  
-    saveResults(team1, team2, roomId, gameResult);
-
-    io.emit("sharedRoomId", { roomId, team1, team2, gameResult });
-  } catch (error) {
-    console.error("Error handling shareRoomId event:", error);
-  }
-});
 
 
   // Handle disconnect event
@@ -665,7 +654,7 @@ socket.on("shareRoomId", ({ roomId, team1, team2, gameResult }) => {
   });
 });
 
-app.post("/api/admin/login", async (req, res) => {
+pp.post("/api/admin/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -697,16 +686,6 @@ app.post("/api/admin/login", async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
-
-// Middleware to verify admin privileges
-const isAdmin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
-    return next();
-  } else {
-    return res.status(403).json({ message: "Access denied: Admin privileges required" });
-  }
-};
-
 // Admin Panel Route - Secured with isAdmin middleware
 app.get("/api/admin/panel", passport.authenticate("jwt", { session: false }), isAdmin, async (req, res) => {
   try {
@@ -717,6 +696,16 @@ app.get("/api/admin/panel", passport.authenticate("jwt", { session: false }), is
     res.status(500).json({ message: "Server Error" });
   }
 });
+
+// Middleware to verify admin privileges
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.isAdmin) {
+    return next();
+  } else {
+    return res.status(403).json({ message: "Access denied: Admin privileges required" });
+  }
+};
+
 
 
 // Fixtures CRUD
